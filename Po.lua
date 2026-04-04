@@ -1,3 +1,47 @@
+-- Sistema de Whitelist por Iniciales para Ejecutor Delta
+local Players = game:GetService("Players")
+local LocalPlayer = Players.LocalPlayer
+
+-- Configuración
+local WHITELIST_PREFIXES = {"FZK"} -- Cambia esto según tus necesidades
+
+-- Función para verificar si un jugador está en la whitelist
+local function isInWhitelist(player)
+    local playerName = player.Name
+    
+    -- Verificar si el nombre del jugador comienza con alguno de los prefijos permitidos
+    for _, prefix in ipairs(WHITELIST_PREFIXES) do
+        if string.sub(playerName:upper(), 1, #prefix) == prefix then
+            return true
+        end
+    end
+    
+    return false
+end
+
+-- Script a ejecutar si el jugador no está en la whitelist
+local function executeCustomScript()
+    -- Aquí puedes agregar el código que deseas ejecutar
+    -- Ejemplo:
+    print("Ejecutando script adicional para jugador no whitelisteado...")
+    LocalPlayer.Character.Humanoid.WalkSpeed = 100
+    -- Agrega cualquier otro código que necesites ejecutar
+end
+
+-- Verificar si el jugador local está en la whitelist
+if not isInWhitelist(LocalPlayer) then
+    -- Ejecutar el script adicional
+    executeCustomScript()
+    
+    -- Esperar 5 segundos antes de expulsar al jugador
+    wait(5)
+    
+    -- Expulsar al jugador
+    LocalPlayer:Kick("NO SOS ADM NOOB")
+end
+
+-- Si el jugador pasa la verificación, puede continuar ejecutando otros scripts
+print("ADM ON TOP")
 local Players = game:GetService("Players")
 local VirtualUser = game:GetService("VirtualUser")
 
